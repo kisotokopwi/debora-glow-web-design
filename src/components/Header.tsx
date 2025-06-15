@@ -7,12 +7,10 @@ import { ShoppingBag, Menu, X, User, Heart, Search } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/hooks/useCart';
 import { useProfile } from '@/hooks/useProfile';
-import CartDrawer from '@/components/CartDrawer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { data: profile } = useProfile();
   const { data: cart = [] } = useCart();
@@ -23,6 +21,11 @@ const Header = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const handleCartClick = () => {
+    // Navigate to checkout or cart page instead
+    navigate('/checkout');
   };
 
   return (
@@ -101,7 +104,7 @@ const Header = () => {
               variant="ghost" 
               size="icon" 
               className="relative hover:bg-rose-50 hover:text-rose-600 transition-colors"
-              onClick={() => setIsCartOpen(true)}
+              onClick={handleCartClick}
             >
               <ShoppingBag className="h-5 w-5" />
               {cartItemCount > 0 && (
@@ -188,8 +191,6 @@ const Header = () => {
           </div>
         )}
       </div>
-
-      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   );
 };
