@@ -12,11 +12,11 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Debora Cosmetics - Premium Beauty Products in Kenya | Original Makeup & Skincare</title>
-        <meta name="description" content="Shop premium cosmetics and beauty products in Kenya. Original makeup, skincare, and beauty accessories with fast delivery. Call +254 759 910 385 or order online." />
-        <meta name="keywords" content="cosmetics Kenya, makeup Nairobi, beauty products, skincare, lipstick, foundation, original cosmetics" />
-        <meta property="og:title" content="Debora Cosmetics - Premium Beauty Products in Kenya" />
-        <meta property="og:description" content="Shop premium cosmetics and beauty products in Kenya with fast delivery." />
+        <title>Debora Cosmetics - Premium Beauty Products in Tanzania | Original Makeup & Skincare</title>
+        <meta name="description" content="Shop premium cosmetics and beauty products in Tanzania. Original makeup, skincare, and beauty accessories with fast delivery across Dar es Salaam. Call +255 759 910 385 or order online." />
+        <meta name="keywords" content="cosmetics Tanzania, makeup Dar es Salaam, beauty products, skincare Tanzania, lipstick, foundation, original cosmetics Tanzania, beauty store Dar es Salaam" />
+        <meta property="og:title" content="Debora Cosmetics - Premium Beauty Products in Tanzania" />
+        <meta property="og:description" content="Shop premium cosmetics and beauty products in Tanzania with fast delivery across Dar es Salaam and other regions." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.origin} />
         <link rel="canonical" href={window.location.origin} />
@@ -29,8 +29,13 @@ const Index = () => {
             "logo": `${window.location.origin}/placeholder.svg`,
             "contactPoint": {
               "@type": "ContactPoint",
-              "telephone": "+254759910385",
+              "telephone": "+255759910385",
               "contactType": "customer service"
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "Tanzania",
+              "addressLocality": "Dar es Salaam"
             },
             "sameAs": [
               "https://www.instagram.com/debrah_cosmetics"
@@ -43,7 +48,7 @@ const Index = () => {
         <Hero />
         <FeaturedProducts />
         <Categories />
-        <div className="py-16 bg-gray-50">
+        <div className="py-16 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4">
             <FAQSection />
           </div>
