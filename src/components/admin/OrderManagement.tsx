@@ -9,10 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import { Database } from '@/integrations/supabase/types';
+
+type OrderStatus = Database['public']['Enums']['order_status'];
 
 const OrderManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all');
   const queryClient = useQueryClient();
 
   const { data: orders = [], isLoading } = useQuery({
@@ -38,7 +41,7 @@ const OrderManagement = () => {
   });
 
   const updateOrderMutation = useMutation({
-    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+    mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
       const { error } = await supabase
         .from('orders')
         .update({ status, updated_at: new Date().toISOString() })
@@ -105,7 +108,7 @@ const OrderManagement = () => {
             className="pl-10"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={(value: 'all' | OrderStatus) => setStatusFilter(value)}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -175,7 +178,7 @@ const OrderManagement = () => {
                 <div className="flex justify-between items-center">
                   <Select 
                     value={order.status} 
-                    onValueChange={(status) => updateOrderMutation.mutate({ orderId: order.id, status })}
+                    onValueChange={(status: OrderStatus) => updateOrderMutation.mutate({ orderId: order.id, status })}
                   >
                     <SelectTrigger className="w-48">
                       <SelectValue />

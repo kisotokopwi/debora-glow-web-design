@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, ShoppingBag, FileText, Users, BarChart3 } from 'lucide-react';
+import { Package, ShoppingBag, FileText, Users, BarChart3, Settings } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import OrderManagement from './OrderManagement';
 import BlogManagement from './BlogManagement';
 import UserManagement from './UserManagement';
 import AdminAnalytics from './AdminAnalytics';
+import AdminSetup from './AdminSetup';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('analytics');
@@ -21,7 +22,7 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+        <TabsList className="grid grid-cols-6 w-full max-w-3xl">
           <TabsTrigger value="analytics" className="flex items-center space-x-2">
             <BarChart3 className="h-4 w-4" />
             <span>Analytics</span>
@@ -41,6 +42,10 @@ const AdminDashboard = () => {
           <TabsTrigger value="users" className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
             <span>Users</span>
+          </TabsTrigger>
+          <TabsTrigger value="setup" className="flex items-center space-x-2">
+            <Settings className="h-4 w-4" />
+            <span>Setup</span>
           </TabsTrigger>
         </TabsList>
 
@@ -62,6 +67,10 @@ const AdminDashboard = () => {
 
         <TabsContent value="users">
           <UserManagement />
+        </TabsContent>
+
+        <TabsContent value="setup">
+          <AdminSetup />
         </TabsContent>
       </Tabs>
     </div>
