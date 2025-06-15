@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { Database } from '@/integrations/supabase/types';
 
 export interface Profile {
   id: string;
@@ -9,7 +10,7 @@ export interface Profile {
   full_name?: string;
   address?: string;
   phone?: string;
-  role: string;
+  role: Database['public']['Enums']['user_role'];
   created_at: string;
   updated_at: string;
 }
