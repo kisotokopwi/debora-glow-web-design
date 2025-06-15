@@ -10,9 +10,11 @@ interface RelatedProductsProps {
 }
 
 const RelatedProducts = ({ currentProductId, categoryId }: RelatedProductsProps) => {
-  const { data: products = [], isLoading } = useProducts({ 
-    category: categoryId 
-  });
+  const { data: products = [], isLoading } = useProducts(
+    categoryId
+      ? { categories: [categoryId] }
+      : undefined
+  );
 
   // Filter out current product and get up to 4 related products
   const relatedProducts = products
