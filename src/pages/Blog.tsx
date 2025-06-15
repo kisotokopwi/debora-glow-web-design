@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Calendar, User } from 'lucide-react';
 import Header from '@/components/Header';
@@ -66,7 +65,7 @@ const Blog = () => {
       <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
-          {/* Hero Section */}
+          {/* Blog Page Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
               Beauty Blog
@@ -158,4 +157,3 @@ const Blog = () => {
 };
 
 export default Blog;
-
