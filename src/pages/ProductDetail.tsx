@@ -1,271 +1,246 @@
 
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useProduct, useProducts } from '@/hooks/useProducts';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { useProduct } from '@/hooks/useProducts';
+import { useReviews } from '@/hooks/useReviews';
 import { useAddToCart } from '@/hooks/useCart';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import ProductCard from '@/components/ProductCard';
+import { useAddToWishlist, useRemoveFromWishlist, useWishlist } from '@/hooks/useWishlist';
+import ProductImageGallery from '@/components/ProductImageGallery';
 import ReviewsSection from '@/components/ReviewsSection';
+import RelatedProducts from '@/components/RelatedProducts';
+import WhatsAppSupport from '@/components/WhatsAppSupport';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Heart, ShoppingCart, Star, Package, Truck, Shield, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const { data: product, isLoading } = useProduct(id!);
+  const { data: reviews = [] } = useReviews(id!);
+  const { data: wishlist = [] } = useWishlist();
   const addToCart = useAddToCart();
-  
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const addToWishlist = useAddToWishlist();
+  const removeFromWishlist = useRemoveFromWishlist();
 
-  const { data: product, isLoading: productLoading } = useProduct(id!);
-  const { data: relatedProducts = [] } = useProducts({ 
-    category: product?.category_id 
-  });
+  const isInWishlist = wishlist.some(item => item.product_id === id);
+
+  const averageRating = reviews.length > 0 
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+    : 0;
 
   const handleAddToCart = () => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    for (let i = 0; i < quantity; i++) {
-      addToCart.mutate({ productId: product!.id });
+    if (product) {
+      addToCart.mutate({ productId: product.id });
     }
   };
 
-  const nextImage = () => {
-    if (product?.images) {
-      setSelectedImageIndex((prev) => 
-        prev === product.images!.length - 1 ? 0 : prev + 1
-      );
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    
+    if (isInWishlist) {
+      removeFromWishlist.mutate(product.id);
+    } else {
+      addToWishlist.mutate(product.id);
     }
   };
 
-  const prevImage = () => {
-    if (product?.images) {
-      setSelectedImageIndex((prev) => 
-        prev === 0 ? product.images!.length - 1 : prev - 1
-      );
-    }
-  };
-
-  if (productLoading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-2 gap-12">
-            <Skeleton className="h-96 rounded-2xl" />
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-gray-300 aspect-square rounded-lg"></div>
             <div className="space-y-4">
-              <Skeleton className="h-8 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-12 w-1/3" />
+              <div className="bg-gray-300 h-8 rounded w-3/4"></div>
+              <div className="bg-gray-300 h-6 rounded w-1/2"></div>
+              <div className="bg-gray-300 h-4 rounded"></div>
+              <div className="bg-gray-300 h-4 rounded w-2/3"></div>
             </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50">
-        <Header />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-4xl font-bold mb-4">Product Not Found</h1>
-          <Button onClick={() => navigate('/products')}>
-            Back to Products
-          </Button>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h1>
+          <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
+          <Link to="/products">
+            <Button>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Products
+            </Button>
+          </Link>
         </div>
-        <Footer />
       </div>
     );
   }
 
-  const filteredRelatedProducts = relatedProducts
-    .filter(p => p.id !== product.id)
-    .slice(0, 4);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50">
-      <Header />
-      
+    <>
+      <Helmet>
+        <title>{product.name} - Premium Cosmetics | Debora Cosmetics</title>
+        <meta name="description" content={product.description || `Buy ${product.name} at KSH ${product.price}. Premium quality cosmetics with fast delivery in Kenya.`} />
+        <meta name="keywords" content={`${product.name}, cosmetics, makeup, beauty products, Kenya`} />
+        <meta property="og:title" content={`${product.name} | Debora Cosmetics`} />
+        <meta property="og:description" content={product.description || `Premium ${product.name} available now`} />
+        <meta property="og:image" content={product.images?.[0] || '/placeholder.svg'} />
+        <meta property="og:type" content="product" />
+        <meta property="product:price:amount" content={product.price.toString()} />
+        <meta property="product:price:currency" content="KES" />
+        <link rel="canonical" href={`${window.location.origin}/products/${product.id}`} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": product.name,
+            "description": product.description,
+            "image": product.images,
+            "offers": {
+              "@type": "Offer",
+              "url": `${window.location.origin}/products/${product.id}`,
+              "priceCurrency": "KES",
+              "price": product.price,
+              "availability": product.stock_count > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+            },
+            "aggregateRating": reviews.length > 0 ? {
+              "@type": "AggregateRating",
+              "ratingValue": averageRating,
+              "reviewCount": reviews.length
+            } : undefined
+          })}
+        </script>
+      </Helmet>
+
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="mb-8">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/products')}
-            className="text-gray-600 hover:text-rose-600"
-          >
-            ← Back to Products
-          </Button>
-        </div>
+        <nav className="mb-8">
+          <Link to="/products" className="text-rose-600 hover:text-rose-700 flex items-center">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Products
+          </Link>
+        </nav>
 
-        <div className="grid md:grid-cols-2 gap-12 mb-16">
-          {/* Image Gallery */}
-          <div className="space-y-4">
-            <div className="relative bg-white rounded-2xl shadow-lg overflow-hidden">
-              <img 
-                src={product.images?.[selectedImageIndex] || '/placeholder.svg'} 
-                alt={product.name}
-                className="w-full h-96 object-cover"
-              />
-              
-              {product.images && product.images.length > 1 && (
-                <>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                    onClick={prevImage}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
-                    onClick={nextImage}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-
-              {product.featured && (
-                <Badge className="absolute top-4 left-4 bg-rose-500">
-                  Featured
-                </Badge>
-              )}
-            </div>
-
-            {/* Thumbnail Gallery */}
-            {product.images && product.images.length > 1 && (
-              <div className="flex space-x-2">
-                {product.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                      selectedImageIndex === index 
-                        ? 'border-rose-500' 
-                        : 'border-gray-200'
-                    }`}
-                  >
-                    <img 
-                      src={image} 
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+          {/* Product Images */}
+          <div>
+            <ProductImageGallery 
+              images={product.images || ['/placeholder.svg']} 
+              productName={product.name}
+            />
           </div>
 
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                {product.name}
-              </h1>
-              <div className="flex items-center space-x-4">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              
+              {/* Rating */}
+              {reviews.length > 0 && (
+                <div className="flex items-center space-x-2 mb-4">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-5 w-5 ${
+                          i < averageRating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-rose-600">
-                  ${product.price}
+                  KSH {product.price}
                 </span>
+                {product.featured && (
+                  <Badge variant="secondary">Featured</Badge>
+                )}
                 {product.stock_count && product.stock_count > 0 ? (
-                  <Badge variant="outline" className="text-green-600 border-green-600">
-                    In Stock ({product.stock_count})
-                  </Badge>
+                  <Badge className="bg-green-100 text-green-800">In Stock</Badge>
                 ) : (
-                  <Badge variant="outline" className="text-red-600 border-red-600">
-                    Out of Stock
-                  </Badge>
+                  <Badge variant="destructive">Out of Stock</Badge>
                 )}
               </div>
             </div>
 
-            <div className="prose max-w-none">
-              <p className="text-gray-600 text-lg leading-relaxed">
-                {product.description}
-              </p>
-            </div>
+            {/* Description */}
+            {product.description && (
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">Description</h3>
+                <p className="text-gray-600">{product.description}</p>
+              </div>
+            )}
 
-            {/* Quantity Selector */}
-            <div className="flex items-center space-x-4">
-              <span className="font-medium">Quantity:</span>
-              <div className="flex items-center border border-gray-300 rounded-lg">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
+            {/* Actions */}
+            <div className="space-y-4">
+              <div className="flex space-x-4">
+                <Button 
+                  onClick={handleAddToCart}
+                  disabled={!product.stock_count || product.stock_count === 0 || addToCart.isPending}
+                  className="flex-1 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700"
                 >
-                  <Minus className="h-4 w-4" />
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {addToCart.isPending ? 'Adding...' : 'Add to Cart'}
                 </Button>
-                <span className="px-4 py-2 border-l border-r border-gray-300">
-                  {quantity}
-                </span>
                 <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setQuantity(quantity + 1)}
-                  disabled={!product.stock_count || quantity >= product.stock_count}
+                  variant="outline"
+                  onClick={handleToggleWishlist}
+                  className={isInWishlist ? 'text-rose-600 border-rose-600' : ''}
                 >
-                  <Plus className="h-4 w-4" />
+                  <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-current' : ''}`} />
                 </Button>
               </div>
+              
+              <WhatsAppSupport 
+                className="w-full" 
+                size="lg"
+              />
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex space-x-4">
-              <Button 
-                className="flex-1 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white py-3"
-                onClick={handleAddToCart}
-                disabled={addToCart.isPending || !product.stock_count || product.stock_count === 0}
-              >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Add to Cart
-              </Button>
-              <Button 
-                size="icon" 
-                variant="outline"
-                className="border-rose-300 text-rose-600 hover:bg-rose-50"
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
+            {/* Features */}
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+              <div className="text-center">
+                <Package className="h-6 w-6 text-rose-600 mx-auto mb-2" />
+                <p className="text-sm font-medium">Original Products</p>
+              </div>
+              <div className="text-center">
+                <Truck className="h-6 w-6 text-rose-600 mx-auto mb-2" />
+                <p className="text-sm font-medium">Fast Delivery</p>
+              </div>
+              <div className="text-center">
+                <Shield className="h-6 w-6 text-rose-600 mx-auto mb-2" />
+                <p className="text-sm font-medium">7-Day Returns</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Reviews Section */}
-        <ReviewsSection productId={product.id} />
+        <div className="mb-12">
+          <ReviewsSection productId={product.id} />
+        </div>
 
         {/* Related Products */}
-        {filteredRelatedProducts.length > 0 && (
-          <section className="mt-16">
-            <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
-              Related Products
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredRelatedProducts.map((relatedProduct) => (
-                <ProductCard key={relatedProduct.id} product={relatedProduct} />
-              ))}
-            </div>
-          </section>
-        )}
+        <RelatedProducts 
+          currentProductId={product.id} 
+          categoryId={product.category_id}
+        />
+
+        <WhatsAppSupport variant="floating" />
       </div>
-      
-      <Footer />
-    </div>
+    </>
   );
 };
 
