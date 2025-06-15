@@ -1,10 +1,8 @@
-
 import React from 'react';
 import Hero from '@/components/Hero';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Categories from '@/components/Categories';
 import Newsletter from '@/components/Newsletter';
-import FAQSection from '@/components/FAQSection';
 import WhatsAppSupport from '@/components/WhatsAppSupport';
 import { Helmet } from 'react-helmet-async';
 
@@ -48,11 +46,9 @@ const Index = () => {
         <Hero />
         <FeaturedProducts />
         <Categories />
-        <div className="py-16 bg-gradient-to-b from-gray-50 to-white">
-          <div className="container mx-auto px-4">
-            <FAQSection />
-          </div>
-        </div>
+        {/* Removed FAQSection */}
+        {/* Spacing/visual polish: Add a soft divider and breathing room */}
+        <div className="my-12" />
         <Newsletter />
         <WhatsAppSupport variant="floating" />
       </div>
