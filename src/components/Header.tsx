@@ -1,33 +1,77 @@
 
-import { ShoppingBag, Search, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { User, LogOut } from 'lucide-react';
+import CartDrawer from './CartDrawer';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   return (
-    <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-rose-100">
+    <header className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-rose-500 to-pink-600 bg-clip-text text-transparent">
-              Debora
-            </h1>
-            <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-gray-700 hover:text-rose-500 transition-colors">Shop</a>
-              <a href="#" className="text-gray-700 hover:text-rose-500 transition-colors">About</a>
-              <a href="#" className="text-gray-700 hover:text-rose-500 transition-colors">Contact</a>
-            </nav>
-          </div>
+          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+            Debora Cosmetics
+          </Link>
+          
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link to="/" className="text-gray-600 hover:text-rose-600 transition-colors">
+              Home
+            </Link>
+            <Link to="/products" className="text-gray-600 hover:text-rose-600 transition-colors">
+              Products
+            </Link>
+            <Link to="/blog" className="text-gray-600 hover:text-rose-600 transition-colors">
+              Blog
+            </Link>
+            <Link to="/about" className="text-gray-600 hover:text-rose-600 transition-colors">
+              About
+            </Link>
+          </nav>
           
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hover:bg-rose-50">
-              <Search className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="hover:bg-rose-50">
-              <ShoppingBag className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
+            {user && <CartDrawer />}
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-white">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                onClick={() => navigate('/auth')}
+                className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700"
+              >
+                Sign In
+              </Button>
+            )}
           </div>
         </div>
       </div>

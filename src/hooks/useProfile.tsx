@@ -9,7 +9,7 @@ export interface Profile {
   full_name?: string;
   address?: string;
   phone?: string;
-  role: 'user' | 'admin';
+  role: string;
   created_at: string;
   updated_at: string;
 }
@@ -41,7 +41,7 @@ export const useUpdateProfile = () => {
   
   return useMutation({
     mutationFn: async (updates: Partial<Profile>) => {
-      if (!user) throw new Error('No user');
+      if (!user) throw new Error('User not authenticated');
       
       const { data, error } = await supabase
         .from('profiles')
